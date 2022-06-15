@@ -6,8 +6,12 @@ import * as TicketController from '../controllers/ticket.controller';
 import * as UserController from '../controllers/user.controller';
 import * as OrderController from '../controllers/order.controller';
 import * as ItemController from '../controllers/item.controller';
+import * as InitialController from '../controllers/initial.controller';
 
 const router = Router();
+
+// ENDPOINT inicial
+router.get('/', InitialController.initial);
 
 // ENDPOINT PRODUCT
 router.get('/product', ProdutoController.all);
