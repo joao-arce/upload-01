@@ -259,7 +259,7 @@ const Comanda = () => {
                   defaultValue="1"
                 >
                   <option value="1">Rodízio</option>
-                  <option value="3">Salão Externo</option>
+                  <option value="2">Salão Externo</option>
                 </select>
                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                   <svg
