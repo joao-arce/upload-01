@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getBrazilianDate } from '../util/helpers';
 
 interface IOrder {
   id?: number;
@@ -12,6 +13,11 @@ interface IOrder {
 }
 const formatDate = (date: number, type: 'SHOW' | 'SEND') => {
   let d = new Date(date);
+  let dateTest = getBrazilianDate();
+
+  console.log('d ', d);
+  console.log('dateTest ', dateTest);
+
   let month = (d.getMonth() + 1).toString();
   let day = d.getDate().toString();
   let year = d.getFullYear();

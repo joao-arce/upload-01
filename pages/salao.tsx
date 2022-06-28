@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { getBrazilianDate } from '../util/helpers';
 import Fechamento from './fechamento';
 
 interface IOrder {
@@ -108,7 +109,8 @@ const Salao = () => {
   };
 
   const listOrder = async () => {
-    let todayDate = new Date().toISOString().slice(0, 10);
+    // let todayDate = new Date().toISOString().slice(0, 10);
+    let todayDate = getBrazilianDate();
     // let todayDate = '2022-06-12';
 
     const response = await fetch(
