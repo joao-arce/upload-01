@@ -97,7 +97,8 @@ const Salao = () => {
       if (order.status === 'fechada') {
         return (
           <button
-            onClick={() => handleOrder(order.id)}
+            // onClick={() => handleOrder(order.id)}
+            onClick={(e) => goToPartial(e, order.number, order.id)}
             key={order.id}
             className={`${colorBlue}`}
           >
@@ -107,7 +108,8 @@ const Salao = () => {
       } else {
         return (
           <button
-            onClick={() => handleOrder(order.id)}
+            // onClick={() => handleOrder(order.id)}
+            onClick={(e) => goToPartial(e, order.number, order.id)}
             key={order.id}
             className={`${colorOrange}`}
           >
