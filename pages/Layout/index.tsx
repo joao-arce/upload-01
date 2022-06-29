@@ -6,7 +6,7 @@ interface LayoutProps {
 
 const index = ({ children }: LayoutProps) => {
   return (
-    <div className="container min-h-screen grid grid-cols-[22rem,1fr]">
+    <div className="container min-h-screen grid grid-cols-[18rem,1fr]">
       <Sidebar />
       {children}
     </div>

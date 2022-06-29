@@ -7,7 +7,7 @@
     @apply max-w-none w-auto;
   }
   .sidebar {
-    @apply bg-teal-600 text-white p-10;
+    @apply bg-teal-600 text-white p-8;
   }
   .main {
     @apply p-10;
@@ -18,7 +18,7 @@
   li {
     @apply h-1 bg-teal-400 my-10;
   }
-  p {
+  /* p {
     @apply h-1 bg-gray-200 my-10;
-  }
+  } */
 }

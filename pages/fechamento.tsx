@@ -119,9 +119,7 @@ const Fechamento = (props: any) => {
     searchItems();
     setLoading(true);
   };
-  const handleFecharComanda = async (
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ) => {
+  const handleFecharComanda = async (e: React.SyntheticEvent) => {
     e.preventDefault();
 
     const id = props.order.id;
@@ -198,7 +196,7 @@ const Fechamento = (props: any) => {
     setTotal(parcialBebidas + parcialSemAlcool + parcialTicket);
   };
 
-  const handleRetornar = (e: React.FormEvent<HTMLButtonElement>) => {
+  const handleRetornar = (e: React.SyntheticEvent) => {
     e.preventDefault();
     props.closeFechamento();
   };
@@ -293,6 +291,39 @@ const Fechamento = (props: any) => {
               </div>
             </div>
           </div>
+
+          {/* TESTE  */}
+
+          {/* <div className="p-2 w-full bg-gray-100 rounded-md mt-2">
+          <div>
+            <h2 className="text-gray-900 title-font text-center font-medium">
+              Consumo
+            </h2>
+            {items.map((element, index) => {
+              totalConsumo += element.product_price * element.quantity;
+              return (
+                // <div key={index} className="flex justify-between text-gray-500">
+                <div key={index} className="flex text-gray-500">
+                  <p className="basis-2/5">{element.product_name} </p>
+                  <p className="basis-1/5">{element.quantity} </p>
+                  <p className="basis-1/5">
+                    {element.product_price.toFixed(2)}{' '}
+                  </p>
+
+                  <p className="basis-1/5 text-end">
+                    {(element.product_price * element.quantity).toFixed(2)}{' '}
+                  </p>
+                </div>
+              );
+            })}
+            <div className="flex justify-end gap-5 text-gray-900 title-font  font-medium">
+              <h2 className="">Total R$</h2>
+              <h2>{totalConsumo.toFixed(2)}</h2>
+            </div>
+          </div>
+          </div> */}
+
+          {/* fim do teste */}
         </div>
       )}
       <div className="flex justify-center gap-10 mb-5">

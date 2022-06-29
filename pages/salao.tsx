@@ -1,22 +1,18 @@
+import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { getBrazilianDate } from '../util/helpers';
+import { listTodayOrders } from '../libs/order';
+import { IOrder } from '../types/order';
 import Fechamento from './fechamento';
-
-interface IOrder {
-  id?: number;
-  number: number;
-  client_name: string;
-  date: string;
-  id_ticket: number;
-  adult_qtd: number;
-  kid_qtd: number;
-  status: string;
-}
 
 enum TypeTicket {
   Interno = '1',
   Externo = '2',
 }
+
+const colorOrange =
+  'bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded-full';
+const colorBlue =
+  'bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full';
 
 const Salao = () => {
   const [orders, setOrders] = useState<IOrder[]>([]);
@@ -27,8 +23,26 @@ const Salao = () => {
   const [showFechamento, setShowFechamento] = useState(false);
   const [idComanda, setIdComanda] = useState(0);
 
+  const router = useRouter();
+
   const closeFechamento = () => {
     setShowFechamento(false);
+  };
+
+  const goToPartial = (
+    e: React.SyntheticEvent,
+    order_number: number,
+    id_order: number
+  ) => {
+    e.preventDefault();
+
+    const orderNumber = order_number;
+    const idOrder = id_order;
+
+    router.push({
+      pathname: '/parcial',
+      query: { number: orderNumber, id_order: idOrder },
+    });
   };
 
   const handleOrder = (id: number | undefined) => {
@@ -46,15 +60,12 @@ const Salao = () => {
   };
 
   const showInternal = () => {
-    const colorOrange =
-      'bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded-full';
-    const colorBlue =
-      'bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full';
     return internalOrders.map((order) => {
       if (order.status === 'fechada') {
         return (
           <button
-            onClick={() => handleOrder(order.id)}
+            // onClick={() => handleOrder(order.id)}
+            onClick={(e) => goToPartial(e, order.number, order.id)}
             key={order.id}
             className={`${colorBlue}`}
           >
@@ -64,7 +75,8 @@ const Salao = () => {
       } else {
         return (
           <button
-            onClick={() => handleOrder(order.id)}
+            // onClick={() => handleOrder(order.id)}
+            onClick={(e) => goToPartial(e, order.number, order.id)}
             key={order.id}
             className={`${colorOrange}`}
           >
@@ -109,22 +121,12 @@ const Salao = () => {
   };
 
   const listOrder = async () => {
-    // let todayDate = new Date().toISOString().slice(0, 10);
-    let todayDate = getBrazilianDate();
-    // let todayDate = '2022-06-12';
-
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/order/${todayDate}`
-    );
-
-    if (response.ok) {
-      const list = await response.json();
-      // console.log('List ', list.orders);
-      setOrders(list.orders);
-      separateOrders(list.orders);
-    } else {
-      console.log('Error', response.status);
-      throw new Error(`HTTP error! status: ${response.status}`);
+    try {
+      const orders = await listTodayOrders();
+      setOrders(orders);
+      separateOrders(orders);
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -153,7 +155,7 @@ const Salao = () => {
   return !showFechamento ? (
     <section className="text-gray-600 body-font overflow-hidden">
       <div className="container px-5 py-12 mx-auto">
-        <div className="mb-5">
+        <div className="mb-5 w-full sm:w-1/2 ">
           <div className="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 mb-2 rounded-full">
             000 - Comandas Abertas
           </div>
@@ -161,27 +163,16 @@ const Salao = () => {
             000 - Comandas Fechadas
           </div>
         </div>
-        <div className="flex flex-wrap -m-12">
-          <div className="p-12 md:w-1/2 flex flex-col items-start">
-            <h2 className="font-bold text-2xl mb-5">Salão interno</h2>
 
-            <div className="h-screen w-full bg-emerald-400 p-6 rounded-xl">
-              <div className="container grid grid-cols-[repeat(4,auto)] gap-12 justify-between justify-items-center">
-                {loading && showInternal()}
-              </div>
-            </div>
-          </div>
+        <h1 className="mt-2 text-lg">Salão Interno</h1>
 
-          {/* EXTERNO */}
-          <div className="p-12 md:w-1/2 flex flex-col items-start">
-            <h2 className="font-bold text-2xl mb-5">Salão externo</h2>
+        <div className="bg-teal-200 mt-1 rounded-lg px-4 py-5 flex flex-wrap sm:gap-4 sm:px-6">
+          {loading && showInternal()}
+        </div>
 
-            <div className="h-screen w-full bg-sky-400 p-6 rounded-xl ">
-              <div className="container grid grid-cols-[repeat(4,auto)] gap-12 justify-between justify-items-center ">
-                {loading && showExternal()}
-              </div>
-            </div>
-          </div>
+        <h1 className="mt-2 text-lg">Salão Externo</h1>
+        <div className="bg-emerald-200 mt-1 rounded-lg px-4 py-5 flex flex-wrap sm:gap-4 sm:px-6">
+          {loading && showExternal()}
         </div>
       </div>
     </section>

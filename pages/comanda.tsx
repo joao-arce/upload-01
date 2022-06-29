@@ -1,38 +1,7 @@
 import React, { useState } from 'react';
+import { createOrder, listTodayOrders } from '../libs/order';
+import { IOrder } from '../types/order';
 import { getBrazilianDate } from '../util/helpers';
-
-interface IOrder {
-  id?: number;
-  number: number;
-  client_name: string;
-  date: string;
-  id_ticket: number;
-  adult_qtd: number;
-  kid_qtd: number;
-  status: string;
-}
-const formatDate = (date: number, type: 'SHOW' | 'SEND') => {
-  let d = new Date(date);
-  let dateTest = getBrazilianDate();
-
-  console.log('d ', d);
-  console.log('dateTest ', dateTest);
-
-  let month = (d.getMonth() + 1).toString();
-  let day = d.getDate().toString();
-  let year = d.getFullYear();
-  if (month.length < 2) {
-    month = '0' + month;
-  }
-  if (day.length < 2) {
-    day = '0' + day;
-  }
-  if (type === 'SEND') {
-    return [year, month, day].join('-');
-  } else {
-    return [day, month, year].join('-');
-  }
-};
 
 const formateDateToSend = (date: string) => {
   const [day, month, year] = date.split('-');
@@ -50,7 +19,9 @@ const formateDateToShow = (date: string) => {
 
 const Comanda = () => {
   const [number, setNumber] = useState('');
-  const [eventDate, setEventDate] = useState(formatDate(Date.now(), 'SHOW'));
+  const [eventDate, setEventDate] = useState(
+    formateDateToShow(getBrazilianDate())
+  );
   const [clientName, setClientName] = useState('');
   const [adultQtd, setAdultQtd] = useState('');
   const [kidQtd, setKidQtd] = useState('');
@@ -91,38 +62,24 @@ const Comanda = () => {
     return true;
   };
 
-  const handleClick = async (e: React.FormEvent<HTMLButtonElement>) => {
+  const handleSave = async (e: React.SyntheticEvent) => {
     e.preventDefault();
 
     setIdTicket(idTicket);
     if (validateData()) {
-      let newOrder: IOrder = {
-        number: parseInt(number),
-        date: formateDateToSend(eventDate),
-        client_name: clientName,
-        adult_qtd: adultQtd ? parseInt(adultQtd) : 0,
-        kid_qtd: kidQtd ? parseInt(kidQtd) : 0,
-        status: 'criada',
-        id_ticket: +idTicket,
-      };
+      try {
+        let newOrder: IOrder = {
+          id: 0,
+          number: parseInt(number),
+          date: formateDateToSend(eventDate),
+          client_name: clientName,
+          adult_qtd: adultQtd ? parseInt(adultQtd) : 0,
+          kid_qtd: kidQtd ? parseInt(kidQtd) : 0,
+          status: 'criada',
+          id_ticket: +idTicket,
+        };
 
-      // console.log('newOrder ', newOrder);
-
-      // https://api-creative-festa.herokuapp.com
-
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/order`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json;charset=utf-8',
-          },
-          body: JSON.stringify(newOrder),
-        }
-      );
-
-      if (response.ok) {
-        const order = await response.json();
+        const order = await createOrder(newOrder);
         if (order.message) {
           setMsg(order.message);
           setShowMsg(true);
@@ -130,31 +87,23 @@ const Comanda = () => {
           cleanData();
           listOrder();
         }
-      } else {
-        console.log('Erro ', await response.json());
+      } catch (error) {
+        console.log('Erro ', await error);
       }
-
-      // router.push('/');
     }
   };
 
   const listOrder = async () => {
-    const dateParam = formateDateToSend(eventDate);
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/order/${dateParam}`
-    );
-
-    if (response.ok) {
-      const list = await response.json();
-      setList(list.orders);
+    try {
+      const orders = await listTodayOrders();
+      setList(orders);
       setShowList(true);
-    } else {
-      console.log('Error', response.status);
-      throw new Error(`HTTP error! status: ${response.status}`);
+    } catch (error) {
+      console.log(error);
     }
   };
 
-  const handleList = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+  const handleList = (e: React.SyntheticEvent) => {
     e.preventDefault();
 
     listOrder();
@@ -163,7 +112,7 @@ const Comanda = () => {
   return (
     <div className="px-10 py-5">
       <div className="bg-white py-6 sm:py-8 lg:py-2">
-        <div className="max-w-screen-2xl px-4 md:px-8 mx-auto bg-slate-100 rounded-lg ">
+        <div className="max-w-screen-2xl px-4 md:px-8 mx-auto bg-zinc-100 rounded-lg ">
           {/* text - start */}
           <div className="mb-10 md:mb-3">
             <h2 className="text-gray-800 text-2xl lg:text-3xl font-bold text-center mb-4 md:mb-6 pt-5">
@@ -285,7 +234,7 @@ const Comanda = () => {
               <div className="flex gap-10 mb-5">
                 <button
                   className="bg-transparent hover:bg-teal-500 text-teal-700 font-semibold hover:text-white py-2 px-4 border border-teal-500 hover:border-transparent rounded"
-                  onClick={handleClick}
+                  onClick={handleSave}
                 >
                   Salvar
                 </button>
