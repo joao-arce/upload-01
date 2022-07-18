@@ -8,8 +8,11 @@ export type IOrder = {
   date: string;
   adult_qtd: number;
   kid_qtd: number;
+  combo_price: number;
   status: string;
   id_ticket: number;
+  id_cashier: number;
+  ticket?: ITicket;
 };
 
 export type ICompletedOrder = {
@@ -23,4 +26,5 @@ export type ICompletedOrder = {
   id_ticket: number;
   items: IItem[];
   ticket: ITicket;
+  id_cashier: number;
 };

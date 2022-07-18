@@ -5,6 +5,7 @@ export type ITicket = {
   description: string;
   adult_price?: number;
   kid_price?: number;
+  combo_price?: number;
   initial_date: string;
   final_date?: string;
   orders?: IOrder[];

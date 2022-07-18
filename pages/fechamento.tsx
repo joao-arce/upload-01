@@ -55,7 +55,6 @@ const Fechamento = (props: any) => {
     const items: Item[] = list.items;
 
     if (items.length > 0) {
-      // console.log('ENTROU AQUI');
       const result = items.map((item) => {
         const objItem: Item = {
           quantity: item.quantity,
@@ -77,7 +76,6 @@ const Fechamento = (props: any) => {
         return total;
       }, 0);
 
-      // console.log('Result ', result);
       setParcialBebidas(totalAlcool);
       setParcialSemAlcool(totalSemAlcool);
       let totalOrder = totalAlcool + totalSemAlcool + parcialTicket;
@@ -100,7 +98,6 @@ const Fechamento = (props: any) => {
     );
 
     const objTicket = await response.json();
-    // console.log('first', objTicket.ticket);
 
     const formatedTicket: Ticket = {
       adult_price: objTicket.ticket.adult_price ?? 0,
@@ -140,7 +137,6 @@ const Fechamento = (props: any) => {
 
     if (response.ok) {
       const order = await response.json();
-      // console.log('tudo ok');
       // props.closeFechamento();
       router.push('/');
     } else {
@@ -162,7 +158,6 @@ const Fechamento = (props: any) => {
   type TipoCategoria = 'alcool' | 'sem alcool';
 
   const montaItems = (lst: Item[], cat: TipoCategoria) => {
-    // console.log('montaItems', lst);
     if (lst.length > 0) {
       const lstResult = lst.filter((item) => {
         if (cat === 'alcool') {
@@ -171,8 +166,6 @@ const Fechamento = (props: any) => {
           if (item.product.id_category !== 1) return item;
         }
       });
-
-      // console.log('lstResult ', lstResult);
 
       // setParcialBebidas(totalAlcool);
       return lstResult.map((item) => (
@@ -188,21 +181,12 @@ const Fechamento = (props: any) => {
     }
   };
 
-  const montarTotalGeral = () => {
-    console.log('montarTotalGeral');
-    console.log('parcialBebidas ', parcialBebidas);
-    console.log('parcialSemAlcool ', parcialSemAlcool);
-    console.log('parcialTicket ', parcialTicket);
-    setTotal(parcialBebidas + parcialSemAlcool + parcialTicket);
-  };
-
   const handleRetornar = (e: React.SyntheticEvent) => {
     e.preventDefault();
     props.closeFechamento();
   };
 
   useEffect(() => {
-    // console.log(props);
     setShowTela(false);
     montarTela();
 

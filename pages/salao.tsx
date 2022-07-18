@@ -1,48 +1,29 @@
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
+
 import { listTodayOrders } from '../libs/order';
 import { IOrder } from '../types/order';
+import { Spinner } from '../src/components/Spinner';
 import Fechamento from './fechamento';
-
-enum TypeTicket {
-  Interno = '1',
-  Externo = '2',
-}
-
-const colorOrange =
-  'bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded-full';
-const colorBlue =
-  'bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full';
+import { filteredByTicket, separeteOrderByTicket } from '../util/helpers';
+import OrderPanel from '../src/components/OrderPanel';
+import { ITicket } from '../types/ticket';
 
 const Salao = () => {
   const [orders, setOrders] = useState<IOrder[]>([]);
   const [order, setOrder] = useState<IOrder>();
-  const [internalOrders, setInternalOrders] = useState<IOrder[]>([]);
-  const [externalOrders, setExternalOrders] = useState<IOrder[]>([]);
+  const [tickets, setTickets] = useState<ITicket[]>([]);
+
+  const [ordersToShow, setOrdersToShow] = useState<IOrder[]>([]);
   const [loading, setLoading] = useState(false);
   const [showFechamento, setShowFechamento] = useState(false);
   const [idComanda, setIdComanda] = useState(0);
+  const [showSpinner, setShowSpinner] = useState(false);
 
   const router = useRouter();
 
   const closeFechamento = () => {
     setShowFechamento(false);
-  };
-
-  const goToPartial = (
-    e: React.SyntheticEvent,
-    order_number: number,
-    id_order: number
-  ) => {
-    e.preventDefault();
-
-    const orderNumber = order_number;
-    const idOrder = id_order;
-
-    router.push({
-      pathname: '/parcial',
-      query: { number: orderNumber, id_order: idOrder },
-    });
   };
 
   const handleOrder = (id: number | undefined) => {
@@ -59,89 +40,35 @@ const Salao = () => {
     setIdComanda(id);
   };
 
-  const showInternal = () => {
-    return internalOrders.map((order) => {
-      if (order.status === 'fechada') {
-        return (
-          <button
-            // onClick={() => handleOrder(order.id)}
-            onClick={(e) => goToPartial(e, order.number, order.id)}
-            key={order.id}
-            className={`${colorBlue}`}
-          >
-            {order.number}
-          </button>
-        );
-      } else {
-        return (
-          <button
-            // onClick={() => handleOrder(order.id)}
-            onClick={(e) => goToPartial(e, order.number, order.id)}
-            key={order.id}
-            className={`${colorOrange}`}
-          >
-            {order.number}
-          </button>
-        );
-      }
-    });
-  };
-
-  const showExternal = () => {
-    const colorOrange =
-      'bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded-full';
-    const colorBlue =
-      'bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full';
-
-    const external = externalOrders.map((order) => {
-      if (order.status === 'fechada') {
-        return (
-          <button
-            // onClick={() => handleOrder(order.id)}
-            onClick={(e) => goToPartial(e, order.number, order.id)}
-            key={order.id}
-            className={`${colorBlue}`}
-          >
-            {order.number}
-          </button>
-        );
-      } else {
-        return (
-          <button
-            // onClick={() => handleOrder(order.id)}
-            onClick={(e) => goToPartial(e, order.number, order.id)}
-            key={order.id}
-            className={`${colorOrange}`}
-          >
-            {order.number}
-          </button>
-        );
-      }
-    });
-
-    return external;
+  const showPanel = () => {
+    const arrayTemp = tickets.map((ticket) =>
+      filteredByTicket(orders, ticket.id)
+    );
+    return arrayTemp.map((order) => <OrderPanel orders={order} />);
   };
 
   const listOrder = async () => {
     try {
+      setShowSpinner(true);
       const orders = await listTodayOrders();
-      setOrders(orders);
-      separateOrders(orders);
+      if (orders.length > 0) {
+        setOrders(orders);
+        separateOrders(orders);
+      }
+      setShowSpinner(false);
     } catch (error) {
+      setShowSpinner(false);
       console.log(error);
     }
   };
 
   const separateOrders = (orders: IOrder[]) => {
-    // console.log('separateOrders orders ', orders);
-    const internals = orders.filter(
-      (order) => order.id_ticket === +TypeTicket.Interno
-    );
-    const externals = orders.filter(
-      (order) => order.id_ticket !== +TypeTicket.Interno
-    );
-    setInternalOrders(internals);
-    setExternalOrders(externals);
+    const arrayTicket = separeteOrderByTicket(orders);
+    setTickets(arrayTicket);
+
+    const arrayAux = filteredByTicket(orders, arrayTicket[0].id);
+
+    setOrdersToShow(arrayAux);
   };
 
   const buildScreen = () => {
@@ -154,7 +81,9 @@ const Salao = () => {
     buildScreen();
   }, []);
 
-  return !showFechamento ? (
+  return showSpinner ? (
+    <Spinner />
+  ) : !showFechamento ? (
     <section className="text-gray-600 body-font overflow-hidden">
       <div className="container px-5 py-12 mx-auto">
         <div className="mb-5 w-full sm:w-1/2 ">
@@ -166,16 +95,7 @@ const Salao = () => {
           </div>
         </div>
 
-        <h1 className="mt-2 text-lg">Salão Interno</h1>
-
-        <div className="bg-teal-200 mt-1 rounded-lg px-4 py-5 flex flex-wrap sm:gap-4 sm:px-6">
-          {loading && showInternal()}
-        </div>
-
-        <h1 className="mt-2 text-lg">Salão Externo</h1>
-        <div className="bg-emerald-200 mt-1 rounded-lg px-4 py-5 flex flex-wrap sm:gap-4 sm:px-6">
-          {loading && showExternal()}
-        </div>
+        <>{ordersToShow.length > 0 && showPanel()}</>
       </div>
     </section>
   ) : (

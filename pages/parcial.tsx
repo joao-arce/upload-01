@@ -76,7 +76,6 @@ const Parcial = () => {
     const { number } = router.query;
     const auxNumber = number === undefined ? 0 : +number;
 
-    // console.log('auxNumber ', auxNumber);
     return auxNumber;
   };
 
@@ -87,8 +86,6 @@ const Parcial = () => {
     const list = await response.json();
 
     const auxOrder: ICompletedOrder = list.order;
-
-    // console.log('PARCIAL ', auxOrder);
 
     buildPartialScreen(auxOrder);
   };
@@ -115,8 +112,6 @@ const Parcial = () => {
 
     if (response.ok) {
       const order = await response.json();
-      // console.log('tudo ok');
-      // props.closeFechamento();
       router.push('/');
     } else {
       console.log('Erro ', await response.json());
