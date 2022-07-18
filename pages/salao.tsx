@@ -44,7 +44,9 @@ const Salao = () => {
     const arrayTemp = tickets.map((ticket) =>
       filteredByTicket(orders, ticket.id)
     );
-    return arrayTemp.map((order) => <OrderPanel orders={order} />);
+    return arrayTemp.map((order, index) => (
+      <OrderPanel key={index} orders={order} />
+    ));
   };
 
   const listOrder = async () => {

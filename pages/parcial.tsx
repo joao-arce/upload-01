@@ -19,6 +19,7 @@ type OrderData = {
   number: number;
   adult_qtd: number;
   kid_qtd: number;
+  combo_price: number;
   adult_price: number;
   kid_price: number;
   total_ticket: number;
@@ -40,17 +41,22 @@ const Parcial = () => {
 
   const buildPartialOrder = (order: ICompletedOrder) => {
     const { number, adult_qtd, kid_qtd } = order;
-    const { adult_price, kid_price } = order.ticket;
+    const { adult_price, kid_price, combo_price } = order.ticket;
 
     const adult_price_aux = adult_price === undefined ? 0 : adult_price;
     const kid_price_aux = kid_price === undefined ? 0 : kid_price;
+    const combo_price_aux = combo_price === undefined ? 0 : combo_price;
 
-    const total = +adult_qtd * +adult_price_aux + +kid_price_aux * +kid_qtd;
+    const total =
+      +adult_qtd * +adult_price_aux +
+      +kid_price_aux * +kid_qtd +
+      +combo_price_aux;
 
     const objOrder: OrderData = {
       number: number,
       adult_qtd: adult_qtd,
       kid_qtd: kid_qtd,
+      combo_price: combo_price_aux,
       adult_price: adult_price_aux,
       kid_price: kid_price_aux,
       total_ticket: total,
